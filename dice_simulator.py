@@ -7,21 +7,19 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QKeySequence
 
-# --- КОНСТАНТЫ И ДАННЫЕ ---
 DICE_FACES = {
     1: "⚀", 2: "⚁", 3: "⚂", 4: "⚃", 5: "⚄", 6: "⚅"
 }
 
 
 class DiceModel:
-    """Логика приложения (Model)"""
 
     def roll(self):
         return random.randint(1, 6)
 
 
 class DiceApp(QMainWindow):
-    """Основное окно приложения (View + Controller)"""
+
 
     def __init__(self):
         super().__init__()
@@ -31,7 +29,7 @@ class DiceApp(QMainWindow):
         self.setup_shortcuts()
 
     def init_ui(self):
-        """Инициализация графического интерфейса"""
+
         self.setWindowTitle("Симулятор Кубика")
         self.setMinimumSize(400, 500)
 
@@ -41,7 +39,7 @@ class DiceApp(QMainWindow):
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(30, 30, 30, 30)
 
-        # 1. Область отображения кубика
+
         self.dice_label = QLabel("⚀")
         self.dice_label.setAlignment(Qt.AlignCenter)
         self.dice_label.setFont(QFont("Segoe UI Symbol", 150))
@@ -53,14 +51,14 @@ class DiceApp(QMainWindow):
         frame_layout = QVBoxLayout(dice_frame)
         frame_layout.addWidget(self.dice_label)
 
-        # 2. Кнопка действия
+
         self.roll_button = QPushButton("Бросить кубик")
         self.roll_button.setFixedSize(200, 60)
         self.roll_button.setFont(QFont("Arial", 14, QFont.Bold))
         self.roll_button.setCursor(Qt.PointingHandCursor)
         self.roll_button.clicked.connect(self.handle_roll)
 
-        # 3. Лог событий
+
         history_label = QLabel("История бросков:")
         history_label.setStyleSheet("color: #bdc3c7; font-weight: bold;")
 
@@ -77,7 +75,7 @@ class DiceApp(QMainWindow):
             }
         """)
 
-        # Сборка интерфейса
+
         main_layout.addWidget(dice_frame, stretch=2)
         main_layout.addWidget(self.roll_button, alignment=Qt.AlignCenter)
         main_layout.addWidget(history_label)
@@ -86,7 +84,7 @@ class DiceApp(QMainWindow):
         self.apply_styles()
 
     def apply_styles(self):
-        """Применение темной темы оформления"""
+
         self.setStyleSheet("""
             QMainWindow { background-color: #8B0000; }
             QPushButton {
@@ -98,19 +96,19 @@ class DiceApp(QMainWindow):
         """)
 
     def setup_shortcuts(self):
-        """Настройка горячих клавиш"""
+
         shortcut = QShortcut(QKeySequence("Space"), self)
         shortcut.activated.connect(self.handle_roll)
         shortcut_enter = QShortcut(QKeySequence("Return"), self)
         shortcut_enter.activated.connect(self.handle_roll)
 
     def handle_roll(self):
-        """Обработка события броска"""
+
         try:
             result = self.model.roll()
             self.dice_label.setText(DICE_FACES[result])
 
-            # Визуальный отклик
+
             self.dice_label.setStyleSheet("color: #f1c40f;")
             QApplication.processEvents()
             self.dice_label.setStyleSheet("color: #ffffff;")
@@ -129,7 +127,7 @@ class DiceApp(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"Произошла критическая ошибка: {str(e)}")
 
     def save_to_file(self, text):
-        """Обработка исключений при работе с файлами"""
+
         try:
             with open(self.history_file, "a", encoding="utf-8") as f:
                 f.write(text)
@@ -139,7 +137,7 @@ class DiceApp(QMainWindow):
             self.history_log.insertPlainText("--- ОШИБКА: Не удалось записать в файл ---\n")
 
     def keyPressEvent(self, event):
-        """Перехват событий клавиатуры"""
+
         if event.key() == Qt.Key_Escape:
             self.close()
         else:
