@@ -1,18 +1,15 @@
 import os
 import aiohttp
 from dotenv import load_dotenv
-from typing import Union  # <-- ДОБАВЛЕНО для совместимости
+from typing import Union  
 
 load_dotenv()
-API_KEY = os.getenv("OPENWEATHER_API_KEY")
+API_KEY = "24ffbb92d03795668d7483e91517f7c6"
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
-# Исправлен тип возврата на Union[str, dict] (работает на Python 3.7+)
+
 async def fetch_weather(city: str = None, lat: float = None, lon: float = None) -> Union[str, dict]:
-    """
-    Отправляет GET-запрос к OpenWeatherMap.
-    Возвращает dict с данными или str с текстом ошибки.
-    """
+
     if not API_KEY:
         return "❌ Ошибка: не указан API ключ в .env файле."
 
@@ -39,4 +36,4 @@ async def fetch_weather(city: str = None, lat: float = None, lon: float = None) 
     except aiohttp.ClientError as e:
         return f"🌐 Сетевая ошибка: {e}"
     except Exception as e:
-        return f"❌ Неизвестная ошибка: {e}"
+        return f"❌ Неизвестная ошибка: {e}
