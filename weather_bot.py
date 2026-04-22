@@ -12,7 +12,7 @@ from weather_api import fetch_weather
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token="8607733916:AAHaYvEnQGTRqqY3sMf9ksE8NvdlJIYRfNQ")
+bot = Bot(token="")
 dp = Dispatcher()
 
 
