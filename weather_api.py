@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from typing import Union  
 
 load_dotenv()
-API_KEY = "24ffbb92d03795668d7483e91517f7c6"
+API_KEY = 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
