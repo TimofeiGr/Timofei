@@ -1,4 +1,134 @@
-[200~import requests
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+import threading
+from queue import Queue
+import time
+from collections import Counter
+import re
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+
+class InterfaxCrawler:
+    def __init__(self, start_url, max_pages=200, threads=5, timeout=10):
+        self.start_url = start_url
+        self.max_pages = max_pages
+        self.threads = threads
+        self.timeout = timeout
+
+
+        self.queue = Queue()
+        self.visited = set()
+        self.visited_lock = threading.Lock()
+
+
+        self.word_counter = Counter()
+        self.counter_lock = threading.Lock()
+        self.processed_count = 0
+
+
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+
+
+        self.allowed_domains = {'www.interfax.ru', 'interfax.ru'}
+
+
+        self.word_pattern = re.compile(r'[а-яё]+', re.IGNORECASE)
+
+
+        self.stop_words = {
+            'и', 'в', 'на', 'с', 'к', 'у', 'о', 'об', 'от', 'до', 'за', 'из', 'по', 'для',
+            'что', 'как', 'это', 'было', 'были', 'был', 'была', 'не', 'но', 'а', 'или', 'же',
+            'то', 'так', 'вот', 'при', 'без', 'через', 'под', 'над', 'перед', 'между',
+            'который', 'которая', 'которое', 'которые', 'этот', 'эта', 'это', 'эти',
+            'весь', 'вся', 'все', 'всё', 'всех', 'всем', 'всеми', 'однако', 'потому',
+            'поэтому', 'затем', 'тогда', 'там', 'тут', 'здесь', 'туда', 'сюда'
+        }
+
+    def is_valid_url(self, url):
+
+        try:
+            parsed = urlparse(url)
+
+            if parsed.netloc not in self.allowed_domains:
+                return False
+
+
+            if parsed.fragment or 'javascript:' in url:
+                return False
+
+            # Только http/https
+            if parsed.scheme not in ('http', 'https'):
+                return False
+
+
+            ignored_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.pdf', '.zip', '.css', '.js')
+            if url.lower().endswith(ignored_extensions):
+                return False
+
+            return True
+        except:
+            return False
+
+    def extract_links(self, soup, base_url):
+
+        links = set()
+        for a in soup.find_all('a', href=True):
+            href = a['href']
+            absolute_url = urljoin(base_url, href)
+            if self.is_valid_url(absolute_url):
+                links.add(absolute_url)
+        return links
+
+    def extract_text(self, soup):
+
+        for element in soup.find_all(['script', 'style', 'nav', 'header', 'footer', 'aside']):
+            element.decompose()
+
+
+        text_parts = []
+
+
+        article = soup.find('article')
+        if article:
+            text_parts.append(article.get_text())
+        else:
+
+            content_div = soup.find('div', class_=re.compile(r'(content|article|news|text|body)'))
+            if content_div:
+                text_parts.append(content_div.get_text())
+            else:
+
+                body = soup.find('body')
+                if body:
+                    text_parts.append(body.get_text())
+
+        return ' '.join(text_parts)
+
+    def process_page(self, url):
+
+        try:
+
+            response = requests.get(
+                url,
+                headers=self.headers,
+                timeout=self.timeout,
+                allow_redirects=True
+            )
+
+
+            if response.status_code == 200:
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import threading
@@ -285,4 +415,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()~
+    main()
